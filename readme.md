@@ -8,3 +8,5 @@ npm start
 
 ## 说明
 > 此项目仅一时兴起，用于促进自己对canvas编程的掌握熟练度
+
+![截图](./screenshot/screenshot-20220323-212350.png)
