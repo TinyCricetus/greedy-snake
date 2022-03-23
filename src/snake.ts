@@ -6,6 +6,12 @@ interface Location {
   y: number
 }
 
+/**
+ * 
+ * 想法记录
+ * 
+ * 蛇的数据结构，不应该管理绘图相关的东西，应该只是蛇的坐标数据管理，所以 Snake 类中应该只维护一个数组，然后每次移动都更新这个数组
+ */
 export class Snake {
   private ctx: CanvasRenderingContext2D = null
   private grids: Grid[][] = null
