@@ -4,7 +4,10 @@
   "description": "",
   "private": "true",
   "scripts": {
+    "tsc:webpack": "npx tsc webpack.config.ts",
+    "prestart": "npm run tsc:webpack",
     "start": "npx webpack server --open",
+    "prebuild": "npm run tsc:webapck",
     "build": "npx webpack build"
   },
   "author": "",
