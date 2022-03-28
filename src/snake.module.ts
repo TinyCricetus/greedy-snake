@@ -6,7 +6,7 @@ export enum Direction {
   LEFT = 3,
   RIGHT = 4
 }
-export class Location {
+export class Position {
   constructor(public x = 0, public y = 0) {}
 
   set(x = 0, y = 0) {
@@ -15,7 +15,7 @@ export class Location {
   }
   
   clone() {
-    return new Location(this.x, this.y)
+    return new Position(this.x, this.y)
   }
 }
 
@@ -25,9 +25,14 @@ export class Location {
  * 蛇的数据结构，不应该管理绘图相关的东西，应该只是蛇的坐标数据管理，所以 Snake 类中应该只维护一个数组，然后每次移动都更新这个数组
  */
 export class Snake {
-  private body: Location[] = []
+  private body: Position[] = [new Position(0, 0)]
+  
   private width: number
   private height: number
+
+  get snakeBody() {
+    return this.body.map((item) => { return item.clone() })
+  }
 
   constructor(gameConfig: GameConfig) {
     this.width = gameConfig.gameWidth || defaultGameConfig.gameWidth

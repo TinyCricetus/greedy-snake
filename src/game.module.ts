@@ -1,6 +1,6 @@
-import { Snake } from "./snake.module"
+import { Direction, Snake } from "./snake.module"
 import { SnakeGround } from "./ground.module"
-import { Renderer } from "./renderer"
+import { Renderer } from "./renderer.module"
 import { GameConfig } from "./config.module"
 
 export class Game {
@@ -17,34 +17,39 @@ export class Game {
     this.canvas.height = this.gameConfig.gameHeight
     this.ctx = this.canvas.getContext('2d')
 
-    this.renderer = new Renderer(this.ctx, this.gameConfig)
     this.snakeGround = new SnakeGround(this.gameConfig)
     this.snake = new Snake(this.gameConfig)
+    this.renderer = new Renderer(this.ctx, this.gameConfig)
   }
 
   init() {
-    this.renderer.drawXLines()
-    this.renderer.drawYLines()
+    this.renderer.drawGroundColumns()
+    this.renderer.drawGroundRows()
+    this.renderer.drawSnake(this.snake.snakeBody, this.snakeGround.snakeGround)
   }
 
   begin() {
-    this.init()  
+    this.init()
 
     requestAnimationFrame(() => {
       this.run()
     })
   }
 
-  private run() {
-    // const now = Date.now()
-    // if (now - this.lastTimestamp >= 300) {
-    //   this.lastTimestamp = now
-    //   this.snakeGround.update()
-    //   this.snake.update()
-    // }
+  update() {
+    this.snake.moveOneStep(Direction.RIGHT)
+    this.renderer.drawSnake(this.snake.snakeBody, this.snakeGround.snakeGround)
+  }
 
-    // requestAnimationFrame(() => {
-    //   this.run()
-    // })
+  private run() {
+    const now = Date.now()
+    if (now - this.lastTimestamp >= 300) {
+      this.lastTimestamp = now
+      this.update()
+    }
+
+    requestAnimationFrame(() => {
+      this.run()
+    })
   }
 }
