@@ -57,7 +57,7 @@ export class Renderer {
 
   drawSnake(snake: Position[], color = 'black') {
     this.ctx.save()
-    
+
     this.ctx.fillStyle = color
     let selectedGrid = null
     for (const position of snake) {
