@@ -26,20 +26,27 @@ export class Position {
  */
 export class Snake {
   private body: Position[] = [new Position(0, 0)]
+  private oldBody: Position[] = []
   
-  private width: number
-  private height: number
+  private gridWidth: number
+  private gridHeight: number
 
   get snakeBody() {
     return this.body.map((item) => { return item.clone() })
   }
 
+  get snakeOldBody() {
+    return this.oldBody.map((item) => { return item.clone() })
+  }
+
   constructor(gameConfig: GameConfig) {
-    this.width = gameConfig.gameWidth || defaultGameConfig.gameWidth
-    this.height = gameConfig.gameHeight || defaultGameConfig.gameHeight
+    this.gridWidth = gameConfig.gridSize
+    this.gridHeight = gameConfig.gridSize
   }
 
   moveOneStep(dir: Direction) {
+    this.oldBody = this.body.map((item) => { return item.clone() })
+
     // 移动策略，只动第一个，后面的全都跟着动
     const firstBody = this.body[0]
     const beforeBody = firstBody.clone()
@@ -61,11 +68,11 @@ export class Snake {
         break
     }
     // 范围判定，复位
-    firstBody.x = firstBody.x >= this.width ? 0 : firstBody.x
-    firstBody.x = firstBody.x < 0 ? this.width - 1 : firstBody.x
+    firstBody.x = firstBody.x >= this.gridWidth ? 0 : firstBody.x
+    firstBody.x = firstBody.x < 0 ? this.gridWidth - 1 : firstBody.x
 
-    firstBody.y = firstBody.y >= this.height ? 0 : firstBody.y
-    firstBody.y = firstBody.y < 0 ? this.height - 1 : firstBody.y
+    firstBody.y = firstBody.y >= this.gridHeight ? 0 : firstBody.y
+    firstBody.y = firstBody.y < 0 ? this.gridHeight - 1 : firstBody.y
 
     // 后续节点更新
     let beforeX = beforeBody.x

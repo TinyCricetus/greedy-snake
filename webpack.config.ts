@@ -6,7 +6,7 @@ module.exports = {
 
   entry: path.resolve(__dirname, 'index.ts'),
 
-  // devtool: "inline-source-map",
+  devtool: "inline-source-map",
 
   output: {
     filename: 'bundle.js',
@@ -30,5 +30,9 @@ module.exports = {
         loader: "ts-loader"
       }
     ]
-  }
+  },
+
+  performance: {
+    hints: false,
+  },
 }

@@ -10,7 +10,10 @@ export interface GameConfig {
   snakeOriginLength: number,
 
   /** 蛇初始速度，n 格每秒 */
-  snakeOriginSpeed: number
+  snakeOriginSpeed: number,
+
+  /** 蛇身体方格内宽 px */
+  snakeGridPadding: number
 }
 
 export const defaultGameConfig: GameConfig = {
@@ -18,5 +21,6 @@ export const defaultGameConfig: GameConfig = {
   gameHeight: 500,
   gridSize: 20,
   snakeOriginLength: 5,
-  snakeOriginSpeed: 1
+  snakeOriginSpeed: 1,
+  snakeGridPadding: 3,
 }

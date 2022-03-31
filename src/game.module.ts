@@ -19,13 +19,13 @@ export class Game {
 
     this.snakeGround = new SnakeGround(this.gameConfig)
     this.snake = new Snake(this.gameConfig)
-    this.renderer = new Renderer(this.ctx, this.gameConfig)
+    this.renderer = new Renderer(this.ctx, this.snakeGround.snakeGround, this.gameConfig)
   }
 
   init() {
     this.renderer.drawGroundColumns()
     this.renderer.drawGroundRows()
-    this.renderer.drawSnake(this.snake.snakeBody, this.snakeGround.snakeGround)
+    this.renderer.drawSnake(this.snake.snakeBody)
   }
 
   begin() {
@@ -38,7 +38,8 @@ export class Game {
 
   update() {
     this.snake.moveOneStep(Direction.RIGHT)
-    this.renderer.drawSnake(this.snake.snakeBody, this.snakeGround.snakeGround)
+    this.renderer.clearSnake(this.snake.snakeOldBody)
+    this.renderer.drawSnake(this.snake.snakeBody)
   }
 
   private run() {
