@@ -28,11 +28,11 @@ export class SnakeGround {
       list.push([])
       for (let j = 0; j < this.gameConfig.gridSize; j++) {
         list[i][j] = {
-          sideLength: this.gridSideLength - + this.gameConfig.snakeGridPadding * 2,
+          sideLength: this.gridSideLength,
 
           topLeftPoint: {
-            x: i * this.gridSideLength + this.gameConfig.snakeGridPadding,
-            y: j * this.gridSideLength + this.gameConfig.snakeGridPadding
+            x: i * this.gridSideLength,
+            y: j * this.gridSideLength
           }
         }
       }

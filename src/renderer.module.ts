@@ -2,6 +2,13 @@ import { GameConfig } from "./config.module"
 import { Grid } from "./ground.module"
 import { Position } from "./snake.module"
 
+export interface SnakeDrawData {
+  snake: Position[],
+  oldSnake: Position[],
+  oneStepProgress?: number
+  color?: string
+}
+
 export class Renderer {
   private gridSideLengthX
   private gridSideLengthY
@@ -17,8 +24,8 @@ export class Renderer {
 
   drawGround(strokeStyle = 'rgb(233, 231, 231)') {
     this.ctx.save()
+    this.ctx.beginPath()
 
-    this.ctx.strokeStyle = strokeStyle
     let tempWidth = 0
     let tempHeight = 0
     for (let i = 0; i < this.gameConfig.gridSize; i++) {
@@ -29,25 +36,68 @@ export class Renderer {
       this.ctx.moveTo(0, tempHeight)
       this.ctx.lineTo(this.gameConfig.gameWidth, tempHeight)
     }
+
+    this.ctx.strokeStyle = strokeStyle
     this.ctx.stroke()
 
     this.ctx.restore()
   }
 
-  drawSnake(snake: Position[], color = 'black') {
+  drawSnake(data: SnakeDrawData) {
     this.ctx.save()
 
-    this.ctx.fillStyle = color
-    let selectedGrid = null
-    for (const position of snake) {
-      if (!this.ground[position.x] || !this.ground[position.x][position.y]) {
-        console.error(position)
+    this.ctx.beginPath()
+
+    data.oneStepProgress = data.oneStepProgress || 0
+    data.color = data.color || '#DFDFDE'
+
+    let selectedGrid: Grid = null
+    let oldSelectedGrid: Grid = null
+
+    let position: Position = null
+    let oldPosition: Position = null
+
+    let interpolationX = 0
+    let interpolationY = 0
+
+    let currentX = 0
+    let currentY = 0
+    let radius = 0
+    for (let i = 0; i < data.oldSnake.length; i++) {
+      position = data.snake[i]
+      oldPosition = data.oldSnake[i]
+
+      if (!this.ground[oldPosition.x] || !this.ground[oldPosition.x][oldPosition.y]) {
+        console.error(oldPosition)
         throw new Error('Snake body is out of game ground!')
       }
+
+      oldSelectedGrid = this.ground[oldPosition.x][oldPosition.y]
       selectedGrid = this.ground[position.x][position.y]
-      this.ctx.fillRect(selectedGrid.topLeftPoint.x, selectedGrid.topLeftPoint.y, 
-        selectedGrid.sideLength, selectedGrid.sideLength)
+
+      if (Math.abs(selectedGrid.topLeftPoint.x - oldSelectedGrid.topLeftPoint.x) > selectedGrid.sideLength ||
+        Math.abs(selectedGrid.topLeftPoint.y - oldSelectedGrid.topLeftPoint.y) > selectedGrid.sideLength) {
+        interpolationX = 0
+        interpolationY = 0
+      } else {
+        interpolationX = Math.floor((selectedGrid.topLeftPoint.x - oldSelectedGrid.topLeftPoint.x) * data.oneStepProgress / 100)
+        interpolationY = Math.floor((selectedGrid.topLeftPoint.y - oldSelectedGrid.topLeftPoint.y) * data.oneStepProgress / 100)
+      }
+
+      radius = Math.floor(selectedGrid.sideLength / 2)
+      currentX = oldSelectedGrid.topLeftPoint.x + radius + interpolationX
+      currentY = oldSelectedGrid.topLeftPoint.y + radius + interpolationY
+
+      this.ctx.moveTo(currentX, currentY)
+      this.ctx.arc(currentX, currentY, radius, 0, 2 * Math.PI)
+      if (i === 0) {
+        this.ctx.fillStyle = '#8D8DAA'
+        this.ctx.fill()
+        this.ctx.beginPath()
+      }
     }
+    this.ctx.fillStyle = data.color
+    this.ctx.fill()
 
     this.ctx.restore()
   }
@@ -58,7 +108,7 @@ export class Renderer {
     let selectedGrid = null
     for (const position of snake) {
       selectedGrid = this.ground[position.x][position.y]
-      this.ctx.clearRect(selectedGrid.topLeftPoint.x, selectedGrid.topLeftPoint.y, 
+      this.ctx.clearRect(selectedGrid.topLeftPoint.x, selectedGrid.topLeftPoint.y,
         selectedGrid.sideLength, selectedGrid.sideLength)
     }
 
@@ -68,8 +118,9 @@ export class Renderer {
   clearGround() {
     this.ctx.save()
 
-    this.ctx.clearRect(0, 0, this.gameConfig.gameWidth, this.gameConfig.gameHeight)
-    
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
+    this.ctx.fillRect(0, 0, this.gameConfig.gameWidth, this.gameConfig.gameHeight)
+
     this.ctx.restore()
   }
 }

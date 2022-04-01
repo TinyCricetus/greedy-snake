@@ -32,9 +32,20 @@ export class Game {
 
   init() {
     this.renderer.drawGround()
-    this.renderer.drawSnake(this.snake.snakeBody)
+    this.renderer.drawSnake({
+      snake: this.snake.snakeBody,
+      oldSnake: this.snake.snakeOldBody
+    })
+
     this.controller.init()
     this.controller.subscribeKeyDownEvent((direction) => {
+      if (this.currentDirection === Direction.Left && direction === Direction.Right ||
+        this.currentDirection === Direction.Right && direction === Direction.Left ||
+        this.currentDirection === Direction.Up && direction === Direction.Down ||
+        this.currentDirection === Direction.Down && direction === Direction.Up) {
+        return
+      }
+
       this.currentDirection = direction
     })
 
@@ -51,22 +62,28 @@ export class Game {
   }
 
   update() {
-    if (this.snake.needUpdateSnake()) {
-      this.renderer.clearGround()
-      this.renderer.drawGround()
-      this.renderer.drawSnake(this.snake.snakeBody)
+    if (this.currentDirection === Direction.None) {
+      return
     }
-  }
 
-  private run() {
     this.stats.update()
-    
+
     const now = Date.now()
     if (now - this.lastTimestamp >= this.gameConfig.snakeSpeed * 1000) {
       this.lastTimestamp = now
       this.snake.moveOneStep(this.currentDirection)
     }
 
+    this.renderer.clearGround()
+    this.renderer.drawGround()
+    this.renderer.drawSnake({
+      snake: this.snake.snakeBody,
+      oldSnake: this.snake.snakeOldBody,
+      oneStepProgress: Math.floor(((now - this.lastTimestamp) / this.gameConfig.snakeSpeed / 1000) * 100)
+    })
+  }
+
+  private run() {
     this.update()
 
     requestAnimationFrame(() => {

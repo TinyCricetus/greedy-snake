@@ -37,11 +37,21 @@ export class Snake {
     return this.oldBody.map((item) => { return item.clone() })
   }
 
-  constructor(gameConfig: GameConfig) {
-    this.widthGrid = gameConfig.gridSize
-    this.heightGrid = gameConfig.gridSize
+  constructor(private gameConfig: GameConfig) {
+    this.widthGrid = this.gameConfig.gridSize
+    this.heightGrid = this.gameConfig.gridSize
     
-    this.body = [new Position(2, 0), new Position(1, 0), new Position(0, 0)]
+    
+    this.init()
+  }
+  
+  init() {
+    const randomColumn = Math.floor(Math.random() * 1000) % this.gameConfig.gridSize
+    this.body = []
+    for (let i = 0; i < 5; i++) {
+      this.body.push(new Position(i + 3, randomColumn))
+    }
+    this.body = this.body.reverse()
     this.oldBody = this.cloneBody(this.body)
   }
 
