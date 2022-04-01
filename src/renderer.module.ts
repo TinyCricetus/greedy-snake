@@ -15,42 +15,21 @@ export class Renderer {
     throw new Error("Method not implemented.");
   }
 
-  /**
-   * 绘制以X轴点为起点的垂直线
-   * 
-   * @param strokeStyle 直线描边样式
-   */
-  drawGroundColumns(strokeStyle = 'rgb(233, 231, 231)') {
+  drawGround(strokeStyle = 'rgb(233, 231, 231)') {
     this.ctx.save()
 
     this.ctx.strokeStyle = strokeStyle
     let tempWidth = 0
-    for (let i = 0; i < this.gameConfig.gridSize; i++) {
-      tempWidth += this.gridSideLengthX
-      this.ctx.moveTo(tempWidth, 0)
-      this.ctx.lineTo(tempWidth, this.gameConfig.gameHeight)
-      this.ctx.stroke()
-    }
-
-    this.ctx.restore()
-  }
-
-  /**
-   * 绘制以Y轴点为起点的垂直线
-   * 
-   * @param strokeStyle 直线描边样式
-   */
-  drawGroundRows(strokeStyle = 'rgb(233, 231, 231)') {
-    this.ctx.save()
-
-    this.ctx.strokeStyle = strokeStyle
     let tempHeight = 0
     for (let i = 0; i < this.gameConfig.gridSize; i++) {
+      tempWidth += this.gridSideLengthX
       tempHeight += this.gridSideLengthY
+      this.ctx.moveTo(tempWidth, 0)
+      this.ctx.lineTo(tempWidth, this.gameConfig.gameHeight)
       this.ctx.moveTo(0, tempHeight)
       this.ctx.lineTo(this.gameConfig.gameWidth, tempHeight)
-      this.ctx.stroke()
     }
+    this.ctx.stroke()
 
     this.ctx.restore()
   }
@@ -83,6 +62,14 @@ export class Renderer {
         selectedGrid.sideLength, selectedGrid.sideLength)
     }
 
+    this.ctx.restore()
+  }
+
+  clearGround() {
+    this.ctx.save()
+
+    this.ctx.clearRect(0, 0, this.gameConfig.gameWidth, this.gameConfig.gameHeight)
+    
     this.ctx.restore()
   }
 }

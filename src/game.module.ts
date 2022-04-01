@@ -4,6 +4,7 @@ import { Renderer } from "./renderer.module"
 import { GameConfig } from "./config.module"
 import { ControllerModule } from "./controller.module"
 import { Direction } from "./definition"
+import Stats from 'stats.js'
 
 export class Game {
   private snakeGround: SnakeGround = null
@@ -13,6 +14,8 @@ export class Game {
   private renderer: Renderer = null
   private controller: ControllerModule = null
   private currentDirection = Direction.None
+
+  private stats: Stats = null
 
   constructor(private canvas: HTMLCanvasElement, private gameConfig: GameConfig) {
     this.canvas = canvas
@@ -28,13 +31,15 @@ export class Game {
   }
 
   init() {
-    this.renderer.drawGroundColumns()
-    this.renderer.drawGroundRows()
+    this.renderer.drawGround()
     this.renderer.drawSnake(this.snake.snakeBody)
     this.controller.init()
     this.controller.subscribeKeyDownEvent((direction) => {
       this.currentDirection = direction
     })
+
+    this.stats = new Stats()
+    document.body.appendChild(this.stats.dom)
   }
 
   begin() {
@@ -46,19 +51,23 @@ export class Game {
   }
 
   update() {
-    this.snake.moveOneStep(this.currentDirection)
     if (this.snake.needUpdateSnake()) {
-      this.renderer.clearSnake(this.snake.snakeOldBody)
+      this.renderer.clearGround()
+      this.renderer.drawGround()
       this.renderer.drawSnake(this.snake.snakeBody)
     }
   }
 
   private run() {
+    this.stats.update()
+    
     const now = Date.now()
-    if (now - this.lastTimestamp >= 150) {
+    if (now - this.lastTimestamp >= this.gameConfig.snakeSpeed * 1000) {
       this.lastTimestamp = now
-      this.update()
+      this.snake.moveOneStep(this.currentDirection)
     }
+
+    this.update()
 
     requestAnimationFrame(() => {
       this.run()

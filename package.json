@@ -13,7 +13,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/stats": "^0.16.30",
     "html-webpack-plugin": "^5.5.0",
+    "stats.js": "^0.17.0",
     "ts-loader": "^9.2.8",
     "typescript": "^4.6.2",
     "webpack": "^5.70.0",
