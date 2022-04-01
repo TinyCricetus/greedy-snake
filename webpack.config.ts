@@ -6,7 +6,7 @@ module.exports = {
 
   entry: path.resolve(__dirname, 'index.ts'),
 
-  // devtool: "inline-source-map",
+  devtool: "inline-source-map",
 
   output: {
     filename: 'bundle.js',
@@ -15,7 +15,8 @@ module.exports = {
   },
 
   plugins: [new HtmlWebpackPlugin({
-    template: 'index.html'
+    template: path.resolve(__dirname, './public/index.html'),
+    favicon: path.resolve(__dirname, './public/favicon.ico')
   })],
 
   resolve: {
@@ -29,5 +30,9 @@ module.exports = {
         loader: "ts-loader"
       }
     ]
-  }
+  },
+
+  performance: {
+    hints: false,
+  },
 }

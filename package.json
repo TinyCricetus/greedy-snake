@@ -7,13 +7,15 @@
     "tsc:webpack": "npx tsc webpack.config.ts",
     "prestart": "npm run tsc:webpack",
     "start": "npx webpack server --open",
-    "prebuild": "npm run tsc:webapck",
+    "prebuild": "npm run tsc:webpack",
     "build": "npx webpack build"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/stats": "^0.16.30",
     "html-webpack-plugin": "^5.5.0",
+    "stats.js": "^0.17.0",
     "ts-loader": "^9.2.8",
     "typescript": "^4.6.2",
     "webpack": "^5.70.0",
