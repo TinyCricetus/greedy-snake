@@ -1,5 +1,5 @@
-import { defaultGameConfig } from "./src/config.module"
-import { Game } from "./src/game.module"
+import { defaultGameConfig } from "./src/config"
+import { Game } from "./src/game"
 
 function init() {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement

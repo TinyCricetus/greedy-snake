@@ -1,13 +1,11 @@
-import { Snake } from "./snake.module"
-import { SnakeGround } from "./ground.module"
-import { Renderer } from "./renderer.module"
-import { GameConfig } from "./config.module"
-import { ControllerModule } from "./controller.module"
 import { Direction } from "./definition"
 import Stats from 'stats.js'
+import { GameConfig } from "./config"
+import { ControllerModule } from "./controller"
+import { Renderer } from "./renderer"
+import { Snake } from "./snake"
 
 export class Game {
-  private snakeGround: SnakeGround = null
   private snake: Snake = null
   private ctx: CanvasRenderingContext2D = null
   private lastTimestamp = 0
@@ -25,9 +23,8 @@ export class Game {
     this.ctx = this.canvas.getContext('2d')
 
     this.controller = new ControllerModule()
-    this.snakeGround = new SnakeGround(this.gameConfig)
     this.snake = new Snake(this.gameConfig)
-    this.renderer = new Renderer(this.ctx, this.snakeGround.snakeGround, this.gameConfig)
+    this.renderer = new Renderer(this.ctx, this.gameConfig)
   }
 
   init() {

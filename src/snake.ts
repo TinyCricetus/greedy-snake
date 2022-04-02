@@ -1,21 +1,5 @@
-import { GameConfig } from "./config.module"
-import { Direction } from "./definition"
-export class Position {
-  constructor(public x = 0, public y = 0) {}
-
-  set(x = 0, y = 0) {
-    this.x = x
-    this.y = y
-  }
-  
-  clone() {
-    return new Position(this.x, this.y)
-  }
-
-  equal(this: Position, another: Position) {
-    return this.x === another.x && this.y === another.y
-  }
-}
+import { GameConfig } from "./config"
+import { Position, Direction } from "./definition"
 
 /**
  * 想法记录
@@ -40,7 +24,6 @@ export class Snake {
   constructor(private gameConfig: GameConfig) {
     this.widthGrid = this.gameConfig.gridSize
     this.heightGrid = this.gameConfig.gridSize
-    
     
     this.init()
   }
