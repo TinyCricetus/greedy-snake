@@ -77,13 +77,25 @@ export class Snake {
 
   moveOneStep(dir: Direction) {
     if (dir === Direction.None) {
-      return
+      return false
+    }
+    // 移动策略，只动第一个，后面的全都跟着动
+    const newHead = this.getNextSnakeHeadPosition(dir)
+    
+    if (this.canSnakeMove(newHead)) {
+      this.updateBody(newHead)
+      return true
     }
 
-    this.oldBody = this.cloneBody(this.body)
+    return false
+  }
 
-    // 移动策略，只动第一个，后面的全都跟着动
-    const firstBody = this.body[0]
+  private canSnakeMove(head: Position) {
+    return this.body.findIndex((pos) => { return pos.x === head.x && pos.y === head.y }) < 0
+  }
+
+  private getNextSnakeHeadPosition(dir: Direction) {
+    const firstBody = this.body[0].clone()
 
     switch (dir) {
       case Direction.Up:
@@ -108,6 +120,13 @@ export class Snake {
     firstBody.y = firstBody.y >= this.heightGrid ? 0 : firstBody.y
     firstBody.y = firstBody.y < 0 ? this.heightGrid - 1 : firstBody.y
 
+    return firstBody
+  }
+
+  private updateBody(newHead: Position) {
+    this.oldBody = this.cloneBody(this.body)
+    // 更新头部
+    this.body[0].set(newHead.x, newHead.y)
     // 后续节点更新
     for (let i = 1; i < this.oldBody.length; i++) {
       this.body[i].set(this.oldBody[i - 1].x, this.oldBody[i - 1].y)

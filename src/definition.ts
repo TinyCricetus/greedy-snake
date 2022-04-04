@@ -22,3 +22,9 @@ export class Position {
     return this.x === another.x && this.y === another.y
   }
 }
+
+export enum GameStatus {
+  None = 'none',
+  Pause = 'pause',
+  Run = 'run'
+}

@@ -1,4 +1,4 @@
-import { Direction } from "./definition"
+import { Direction, GameStatus } from "./definition"
 import Stats from 'stats.js'
 import { GameConfig } from "./config"
 import { ControllerModule } from "./controller"
@@ -16,6 +16,7 @@ export class Game {
   private currentDirection = Direction.None
 
   private stats: Stats = null
+  private gameStatus: GameStatus = GameStatus.None
 
   constructor(private canvas: HTMLCanvasElement, private gameConfig: GameConfig) {
     this.canvas = canvas
@@ -36,7 +37,7 @@ export class Game {
       snake: this.snake.snakeBody,
       oldSnake: this.snake.snakeOldBody
     })
-    
+
     this.snakeFood.generateFood(this.snake.snakeBody)
     this.renderer.drawFood(this.snakeFood.food)
     this.snake.subscribeFoodEaten(() => {
@@ -53,6 +54,9 @@ export class Game {
       }
 
       this.currentDirection = direction
+      if (this.getGameStatus() !== GameStatus.Run) {
+        this.continue()
+      }
     })
 
     this.stats = new Stats()
@@ -61,35 +65,64 @@ export class Game {
 
   begin() {
     this.init()
+    this.gameStatus = GameStatus.Run
 
     requestAnimationFrame(() => {
       this.run()
     })
   }
 
+  pause() {
+    this.currentDirection = Direction.None
+    this.gameStatus = GameStatus.Pause
+  }
+
+  continue() {
+    this.gameStatus = GameStatus.Run
+  }
+
+  getGameStatus() {
+    return this.gameStatus
+  }
+
   update() {
     if (this.currentDirection === Direction.None) {
       return
     }
-
     this.stats.update()
 
     const now = Date.now()
-    if (now - this.lastTimestamp >= this.gameConfig.snakeSpeed * 1000) {
-      this.lastTimestamp = now
-      this.snake.moveOneStep(this.currentDirection)
-      if (this.snake.canEatFood(this.snakeFood.food)) {
-        this.snake.eatFood()
-      }
+    this.updateSnakeAction(now)
+    this.updateRenderer(now)
+  }
+
+  private updateSnakeAction(timestampNow: number) {
+    if (timestampNow - this.lastTimestamp < this.gameConfig.snakeSpeed * 1000) {
+      return
+    }
+    this.lastTimestamp = timestampNow
+
+    if (!this.snake.moveOneStep(this.currentDirection)) {
+      this.pause()
+      return
     }
 
+    if (this.snake.canEatFood(this.snakeFood.food)) {
+      this.snake.eatFood()
+    }
+  }
+
+  private updateRenderer(timestampNow: number) {
+    if (this.getGameStatus() !== GameStatus.Run) {
+      return
+    }
     this.renderer.clearGround()
     this.renderer.drawGround()
     this.renderer.drawFood(this.snakeFood.food)
     this.renderer.drawSnake({
       snake: this.snake.snakeBody,
       oldSnake: this.snake.snakeOldBody,
-      oneStepProgress: Math.floor(((now - this.lastTimestamp) / this.gameConfig.snakeSpeed / 1000) * 100)
+      oneStepProgress: Math.floor(((timestampNow - this.lastTimestamp) / this.gameConfig.snakeSpeed / 1000) * 100)
     })
   }
 
