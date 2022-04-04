@@ -20,7 +20,9 @@ export interface GameConfig {
   
   snakeBodyColor: string,
 
-  groundLineColor: string
+  groundLineColor: string,
+
+  foodColor: string
 }
 
 export const defaultGameConfig: GameConfig = {
@@ -35,5 +37,7 @@ export const defaultGameConfig: GameConfig = {
   snakeHeadColor: '#8D8DAA',
   snakeBodyColor: '#DFDFDE',
 
-  groundLineColor: 'rgb(233, 231, 231)'
+  groundLineColor: 'rgb(233, 231, 231)',
+
+  foodColor: '#F56D91'
 }

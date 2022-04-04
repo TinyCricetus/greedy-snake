@@ -4,8 +4,10 @@ import { GameConfig } from "./config"
 import { ControllerModule } from "./controller"
 import { Renderer } from "./renderer"
 import { Snake } from "./snake"
+import { Food } from "./food"
 
 export class Game {
+  private snakeFood: Food = null
   private snake: Snake = null
   private ctx: CanvasRenderingContext2D = null
   private lastTimestamp = 0
@@ -24,6 +26,7 @@ export class Game {
 
     this.controller = new ControllerModule()
     this.snake = new Snake(this.gameConfig)
+    this.snakeFood = new Food(this.gameConfig)
     this.renderer = new Renderer(this.ctx, this.gameConfig)
   }
 
@@ -32,6 +35,12 @@ export class Game {
     this.renderer.drawSnake({
       snake: this.snake.snakeBody,
       oldSnake: this.snake.snakeOldBody
+    })
+    
+    this.snakeFood.generateFood(this.snake.snakeBody)
+    this.renderer.drawFood(this.snakeFood.food)
+    this.snake.subscribeFoodEaten(() => {
+      this.snakeFood.generateFood(this.snake.snakeBody)
     })
 
     this.controller.init()
@@ -69,10 +78,14 @@ export class Game {
     if (now - this.lastTimestamp >= this.gameConfig.snakeSpeed * 1000) {
       this.lastTimestamp = now
       this.snake.moveOneStep(this.currentDirection)
+      if (this.snake.canEatFood(this.snakeFood.food)) {
+        this.snake.eatFood()
+      }
     }
 
     this.renderer.clearGround()
     this.renderer.drawGround()
+    this.renderer.drawFood(this.snakeFood.food)
     this.renderer.drawSnake({
       snake: this.snake.snakeBody,
       oldSnake: this.snake.snakeOldBody,

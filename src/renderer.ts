@@ -17,6 +17,11 @@ interface Grid {
     y: number
   }
 }
+/**
+ * 方格渲染器
+ * 
+ * 此渲染器将指定宽高的配置栅格化，形成由多个方块构成的绘图区域，使用时只需要传入指定的坐标的即可绘制指定方格区域
+ */
 export class Renderer {
   private gridSideLengthX
   private gridSideLengthY
@@ -26,6 +31,21 @@ export class Renderer {
     this.gridSideLengthX = this.gameConfig.gameWidth / this.gameConfig.gridSize
     this.gridSideLengthY = this.gameConfig.gameHeight / this.gameConfig.gridSize
     this.gameGround = this.getGameGround()
+  }
+
+  drawGrid(position: Position, fillStyle: string, width: number, height: number) {
+    this.ctx.save()
+    this.ctx.beginPath()
+
+    const grid = this.gameGround[position.x]?.[position.y]
+    if (!grid) {
+      throw new Error('The position is invalid!')
+    }
+
+    this.ctx.fillStyle = fillStyle
+    this.ctx.fillRect(grid.topLeftPoint.x, grid.topLeftPoint.y, width, height)
+
+    this.ctx.restore()
   }
 
   drawGround() {
@@ -49,9 +69,21 @@ export class Renderer {
     this.ctx.restore()
   }
 
+  drawFood(position: Position) {
+    this.ctx.save()
+    this.ctx.beginPath()
+
+    this.ctx.fillStyle = this.gameConfig.foodColor
+    const grid = this.gameGround[position.x][position.y]
+    const radius = Math.floor(grid.sideLengthX / 2)
+    this.ctx.arc(grid.topLeftPoint.x + radius, grid.topLeftPoint.y + radius, radius, 0, 2 * Math.PI)
+    this.ctx.fill()
+
+    this.ctx.restore()
+  }
+
   drawSnake(data: SnakeDrawData) {
     this.ctx.save()
-
     this.ctx.beginPath()
 
     data.oneStepProgress = data.oneStepProgress || 0
@@ -101,6 +133,7 @@ export class Renderer {
         this.ctx.beginPath()
       }
     }
+    
     this.ctx.fillStyle = this.gameConfig.snakeBodyColor
     this.ctx.fill()
 

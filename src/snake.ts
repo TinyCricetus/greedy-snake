@@ -9,9 +9,11 @@ import { Position, Direction } from "./definition"
 export class Snake {
   private body: Position[] = null
   private oldBody: Position[] = null
-  
+
   private widthGrid: number
   private heightGrid: number
+
+  private foodEatenCallback: () => void = null
 
   get snakeBody() {
     return this.body.map((item) => { return item.clone() })
@@ -24,10 +26,10 @@ export class Snake {
   constructor(private gameConfig: GameConfig) {
     this.widthGrid = this.gameConfig.gridSize
     this.heightGrid = this.gameConfig.gridSize
-    
+
     this.init()
   }
-  
+
   init() {
     const randomColumn = Math.floor(Math.random() * 1000) % this.gameConfig.gridSize
     this.body = []
@@ -56,6 +58,23 @@ export class Snake {
     return false
   }
 
+  canEatFood(food: Position) {
+    return this.snakeBody[0].x === food.x && this.snakeBody[0].y === food.y
+  }
+
+  /** 蛇长加一 */
+  eatFood() {
+    this.body.push(this.body[this.body.length - 1].clone())
+    
+    if (this.foodEatenCallback) {
+      this.foodEatenCallback()
+    }
+  }
+
+  subscribeFoodEaten(callback: () => void) {
+    this.foodEatenCallback = callback
+  }
+
   moveOneStep(dir: Direction) {
     if (dir === Direction.None) {
       return
@@ -65,8 +84,8 @@ export class Snake {
 
     // 移动策略，只动第一个，后面的全都跟着动
     const firstBody = this.body[0]
-    
-    switch(dir) {
+
+    switch (dir) {
       case Direction.Up:
         firstBody.y--
         break
