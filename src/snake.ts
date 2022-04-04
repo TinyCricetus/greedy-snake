@@ -1,21 +1,5 @@
-import { GameConfig } from "./config.module"
-import { Direction } from "./definition"
-export class Position {
-  constructor(public x = 0, public y = 0) {}
-
-  set(x = 0, y = 0) {
-    this.x = x
-    this.y = y
-  }
-  
-  clone() {
-    return new Position(this.x, this.y)
-  }
-
-  equal(this: Position, another: Position) {
-    return this.x === another.x && this.y === another.y
-  }
-}
+import { GameConfig } from "./config"
+import { Position, Direction } from "./definition"
 
 /**
  * 想法记录
@@ -25,9 +9,11 @@ export class Position {
 export class Snake {
   private body: Position[] = null
   private oldBody: Position[] = null
-  
+
   private widthGrid: number
   private heightGrid: number
+
+  private foodEatenCallback: () => void = null
 
   get snakeBody() {
     return this.body.map((item) => { return item.clone() })
@@ -40,11 +26,10 @@ export class Snake {
   constructor(private gameConfig: GameConfig) {
     this.widthGrid = this.gameConfig.gridSize
     this.heightGrid = this.gameConfig.gridSize
-    
-    
+
     this.init()
   }
-  
+
   init() {
     const randomColumn = Math.floor(Math.random() * 1000) % this.gameConfig.gridSize
     this.body = []
@@ -73,17 +58,46 @@ export class Snake {
     return false
   }
 
+  canEatFood(food: Position) {
+    return this.snakeBody[0].x === food.x && this.snakeBody[0].y === food.y
+  }
+
+  /** 蛇长加一 */
+  eatFood() {
+    this.body.push(this.body[this.body.length - 1].clone())
+    
+    if (this.foodEatenCallback) {
+      this.foodEatenCallback()
+    }
+  }
+
+  subscribeFoodEaten(callback: () => void) {
+    this.foodEatenCallback = callback
+  }
+
   moveOneStep(dir: Direction) {
     if (dir === Direction.None) {
-      return
+      return false
+    }
+    // 移动策略，只动第一个，后面的全都跟着动
+    const newHead = this.getNextSnakeHeadPosition(dir)
+    
+    if (this.canSnakeMove(newHead)) {
+      this.updateBody(newHead)
+      return true
     }
 
-    this.oldBody = this.cloneBody(this.body)
+    return false
+  }
 
-    // 移动策略，只动第一个，后面的全都跟着动
-    const firstBody = this.body[0]
-    
-    switch(dir) {
+  private canSnakeMove(head: Position) {
+    return this.body.findIndex((pos) => { return pos.x === head.x && pos.y === head.y }) < 0
+  }
+
+  private getNextSnakeHeadPosition(dir: Direction) {
+    const firstBody = this.body[0].clone()
+
+    switch (dir) {
       case Direction.Up:
         firstBody.y--
         break
@@ -106,6 +120,13 @@ export class Snake {
     firstBody.y = firstBody.y >= this.heightGrid ? 0 : firstBody.y
     firstBody.y = firstBody.y < 0 ? this.heightGrid - 1 : firstBody.y
 
+    return firstBody
+  }
+
+  private updateBody(newHead: Position) {
+    this.oldBody = this.cloneBody(this.body)
+    // 更新头部
+    this.body[0].set(newHead.x, newHead.y)
     // 后续节点更新
     for (let i = 1; i < this.oldBody.length; i++) {
       this.body[i].set(this.oldBody[i - 1].x, this.oldBody[i - 1].y)
