@@ -10,7 +10,7 @@ export enum DirectionKey {
 export class ControllerModule {
   private callback: (direction: Direction) => void = null
 
-  constructor() {}
+  constructor() { }
 
   init() {
     document.addEventListener('keydown', (event) => {
@@ -26,18 +26,22 @@ export class ControllerModule {
     if (!this.callback) {
       return
     }
-    
+    console.log(key)
     switch (key) {
       case 'ArrowUp':
+      case 'w':
         this.callback(Direction.Up)
         break
       case 'ArrowDown':
+      case 's':
         this.callback(Direction.Down)
         break
       case 'ArrowLeft':
+      case 'a':
         this.callback(Direction.Left)
         break
       case 'ArrowRight':
+      case 'd':
         this.callback(Direction.Right)
         break
       case ' ':
