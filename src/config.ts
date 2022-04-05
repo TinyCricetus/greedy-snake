@@ -46,6 +46,6 @@ export const defaultGameConfig: GameConfig = {
   groundLineColor: 'rgb(233, 231, 231)',
 
   foodColor: '#F56D91',
-  foodEscapeInterval: 2,
+  foodEscapeInterval: 3,
   foodSafeGrid: 2
 }

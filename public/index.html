@@ -8,17 +8,34 @@
 </head>
 <body>
   <h2 style="color: #8D8DAA;">仓鼠团子贪吃蛇</h1>
-  <h5 style="color: #DFDFDE;">（当前未制定规则……）</h5>
+  <h5 style="color: #DFDFDE;">（当前未制定详细规则……）</h5>
+  <div id="score"></div>
   <canvas id="canvas"></canvas>
+  <div>
+    <h3>游戏控制说明</h3>
+    <p>游戏控制：WSAD或方向键</p>
+    <p>游戏暂停：空格</p>
+  </div>
   <style>
     body {
       text-align: center;
+      color: #c7c7c7;
     }
     #canvas {
       margin-top: 30px;
       box-sizing: border-box;
       box-shadow: 0 0 2px 10px rgb(233, 231, 231);
       border-radius: 2px;
+    }
+    #score {
+      cursor: default;
+      width: 150px;
+      height: 30px;
+      line-height: 30px;
+      margin: 0 auto;
+      border: 1px solid #DFDFDE;
+      border-radius: 30px;
+      background-color: #F7F5F2;
     }
   </style>
 </body>

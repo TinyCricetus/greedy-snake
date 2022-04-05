@@ -13,7 +13,7 @@ export class Snake {
   private widthGrid: number
   private heightGrid: number
 
-  private foodEatenCallback: () => void = null
+  private foodEatenCallbackList: Array<() => void> = null
 
   get snakeBody() {
     return this.body.map((item) => { return item.clone() })
@@ -79,13 +79,19 @@ export class Snake {
   eatFood() {
     this.body.push(this.body[this.body.length - 1].clone())
 
-    if (this.foodEatenCallback) {
-      this.foodEatenCallback()
+    if (this.foodEatenCallbackList) {
+      for (const callback of this.foodEatenCallbackList) {
+        callback()
+      }
     }
   }
 
   subscribeFoodEaten(callback: () => void) {
-    this.foodEatenCallback = callback
+    if (!this.foodEatenCallbackList) {
+      this.foodEatenCallbackList = []
+    }
+    
+    this.foodEatenCallbackList.push(callback)
   }
 
   moveOneStep(dir: Direction) {

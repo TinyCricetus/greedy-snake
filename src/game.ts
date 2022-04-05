@@ -33,6 +33,10 @@ export class Game {
     this.renderer = new Renderer(this.ctx, this.gameConfig)
   }
 
+  getSnake() {
+    return this.snake
+  }
+
   init() {
     this.renderer.drawGround()
     this.renderer.drawSnake({
