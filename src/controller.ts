@@ -26,7 +26,7 @@ export class ControllerModule {
     if (!this.callback) {
       return
     }
-    console.log(key)
+
     switch (key) {
       case 'ArrowUp':
       case 'w':
