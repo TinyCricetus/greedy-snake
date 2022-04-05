@@ -62,10 +62,23 @@ export class Snake {
     return this.snakeBody[0].x === food.x && this.snakeBody[0].y === food.y
   }
 
+  isNearFood(food: Position) {
+    const distanceX = Math.abs(this.snakeBody[0].x - food.x)
+    const distanceY = Math.abs(this.snakeBody[0].y - food.y)
+
+    const distanceSideX = this.gameConfig.gridSize - distanceX
+    const distanceSideY = this.gameConfig.gridSize - distanceY
+
+    return (
+      (distanceX <= this.gameConfig.foodSafeGrid && distanceY <= this.gameConfig.foodSafeGrid) ||
+      (distanceSideY <= this.gameConfig.foodSafeGrid && distanceSideX <= this.gameConfig.foodSafeGrid)
+    )
+  }
+
   /** 蛇长加一 */
   eatFood() {
     this.body.push(this.body[this.body.length - 1].clone())
-    
+
     if (this.foodEatenCallback) {
       this.foodEatenCallback()
     }
@@ -81,7 +94,7 @@ export class Snake {
     }
     // 移动策略，只动第一个，后面的全都跟着动
     const newHead = this.getNextSnakeHeadPosition(dir)
-    
+
     if (this.canSnakeMove(newHead)) {
       this.updateBody(newHead)
       return true

@@ -4,9 +4,14 @@ import { Position } from "./definition";
 export class Food {
   private foodGround: number[][] = null
   private foodPosition: Position = null
+  private oldFoodPosition: Position = null
 
   get food() {
     return this.foodPosition
+  }
+
+  get oldFood() {
+    return this.oldFoodPosition
   }
 
   constructor(private gameConfig: GameConfig) {
@@ -20,6 +25,13 @@ export class Food {
   generateFood(snake: Position[]) {
     const availablePositions = this.getAvailablePositions(snake)
     const randomPositionIndex = this.generateRandomInteger() % availablePositions.length
+
+    if (this.foodPosition) {
+      this.oldFoodPosition = this.foodPosition
+    } else {
+      this.oldFoodPosition = availablePositions[randomPositionIndex]
+    }
+
     this.foodPosition = availablePositions[randomPositionIndex]
 
     return this.foodPosition
@@ -46,7 +58,8 @@ export class Food {
     for (let i = 0; i < this.foodGround.length; i++) {
       for (let j = 0; j < this.foodGround[i].length; j++) {
         if (snake.findIndex((pos) => { return pos.x === i && pos.y === j }) < 0) {
-          // 每次产生食物都要进行大量 Position 对象的实例化，此处可以优化，其中之一是使用 Position 对象池进行优化
+          // 这里偷懒了，每次产生食物都要进行大量 Position 对象的实例化，此处可以优化
+          // 可以使用一个二维 Position 数组，每次使用前重置，或者是使用 Position 对象池进行优化
           availablePositions.push(new Position(i, j))
         }
       }

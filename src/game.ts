@@ -8,6 +8,8 @@ import { Food } from "./food"
 
 export class Game {
   private snakeFood: Food = null
+  private lastFoodEscapeTs = 0
+
   private snake: Snake = null
   private ctx: CanvasRenderingContext2D = null
   private lastTimestamp = 0
@@ -39,7 +41,7 @@ export class Game {
     })
 
     this.snakeFood.generateFood(this.snake.snakeBody)
-    this.renderer.drawFood(this.snakeFood.food)
+    this.renderer.drawFood(this.snakeFood.food, this.snakeFood.oldFood, 0)
     this.snake.subscribeFoodEaten(() => {
       this.snakeFood.generateFood(this.snake.snakeBody)
     })
@@ -107,7 +109,14 @@ export class Game {
       return
     }
 
+    if (this.snake.isNearFood(this.snakeFood.food) && timestampNow - this.lastFoodEscapeTs >= this.gameConfig.foodEscapeInterval * 1000) {
+      this.snakeFood.generateFood(this.snake.snakeBody)
+      this.renderer.enableFoodEscapeAnimationOnce(timestampNow)
+      this.lastFoodEscapeTs = timestampNow
+    }
+
     if (this.snake.canEatFood(this.snakeFood.food)) {
+      this.renderer.playFoodEatenAnimationOnce(this.snakeFood.food)
       this.snake.eatFood()
     }
   }
@@ -118,7 +127,7 @@ export class Game {
     }
     this.renderer.clearGround()
     this.renderer.drawGround()
-    this.renderer.drawFood(this.snakeFood.food)
+    this.renderer.drawFood(this.snakeFood.food, this.snakeFood.oldFood, timestampNow)
     this.renderer.drawSnake({
       snake: this.snake.snakeBody,
       oldSnake: this.snake.snakeOldBody,

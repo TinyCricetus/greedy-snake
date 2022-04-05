@@ -11,7 +11,7 @@ export interface SnakeDrawData {
 interface Grid {
   sideLengthX: number
   sideLengthY: number
-  
+
   topLeftPoint: {
     x: number,
     y: number
@@ -26,6 +26,9 @@ export class Renderer {
   private gridSideLengthX
   private gridSideLengthY
   private gameGround: Grid[][]
+
+  private foodAnimationBeginTs = 0
+  private foodAnimationEndTs = 0
 
   constructor(private ctx: CanvasRenderingContext2D, private gameConfig: GameConfig) {
     this.gridSideLengthX = this.gameConfig.gameWidth / this.gameConfig.gridSize
@@ -69,17 +72,62 @@ export class Renderer {
     this.ctx.restore()
   }
 
-  drawFood(position: Position) {
+  drawFood(food: Position, oldFood: Position, timestampNow: number) {
     this.ctx.save()
     this.ctx.beginPath()
 
     this.ctx.fillStyle = this.gameConfig.foodColor
-    const grid = this.gameGround[position.x][position.y]
+    const grid = this.gameGround[food.x][food.y]
     const radius = Math.floor(grid.sideLengthX / 2)
-    this.ctx.arc(grid.topLeftPoint.x + radius, grid.topLeftPoint.y + radius, radius, 0, 2 * Math.PI)
+
+    if (timestampNow <= this.foodAnimationEndTs && this.foodAnimationEndTs > 0) {
+      const oldGrid = this.gameGround[oldFood.x][oldFood.y]
+      const progress = Math.floor((timestampNow - this.foodAnimationBeginTs) / (this.foodAnimationEndTs - this.foodAnimationBeginTs) * 10000) / 10000
+      const offsetX = Math.floor((grid.topLeftPoint.x - oldGrid.topLeftPoint.x) * progress)
+      const offsetY = Math.floor((grid.topLeftPoint.y - oldGrid.topLeftPoint.y) * progress)
+      this.ctx.arc(oldGrid.topLeftPoint.x + radius + offsetX, oldGrid.topLeftPoint.y + radius + offsetY, radius, 0, 2 * Math.PI)
+    } else {
+      this.ctx.arc(grid.topLeftPoint.x + radius, grid.topLeftPoint.y + radius, radius, 0, 2 * Math.PI)
+    }
+
     this.ctx.fill()
 
     this.ctx.restore()
+  }
+
+  enableFoodEscapeAnimationOnce(beginTimestamp: number) {
+    const duration = 600 // ms
+    this.foodAnimationBeginTs = beginTimestamp
+    this.foodAnimationEndTs = beginTimestamp + duration
+  }
+
+  playFoodEatenAnimationOnce(food: Position) {
+    const duration = 500 // ms
+    this.playFoodEatenAnimation(food, Date.now(), duration)
+  }
+
+  playFoodEatenAnimation(food: Position, beginTs: number, duration: number) {
+    const now = Date.now()
+    if (now - beginTs >= duration) {
+      return
+    }
+
+    this.ctx.save()
+    this.ctx.beginPath()
+    this.ctx.fillStyle = this.gameConfig.foodColor
+
+    const grid = this.gameGround[food.x][food.y]
+    const radius = Math.floor(grid.sideLengthX / 2)
+    const progress = Math.floor((now - beginTs) / (duration) * 10000) / 10000
+    const offset = Math.floor(radius * progress)
+
+    this.ctx.arc(grid.topLeftPoint.x + radius, grid.topLeftPoint.y + radius, radius + offset, 0, 2 * Math.PI)
+    this.ctx.fill()
+
+    this.ctx.restore()
+    requestAnimationFrame(() => {
+      this.playFoodEatenAnimation(food, beginTs, duration)
+    })
   }
 
   drawSnake(data: SnakeDrawData) {
@@ -94,8 +142,8 @@ export class Renderer {
     let position: Position = null
     let oldPosition: Position = null
 
-    let interpolationX = 0
-    let interpolationY = 0
+    let offsetX = 0
+    let offsetY = 0
 
     let currentX = 0
     let currentY = 0
@@ -114,16 +162,16 @@ export class Renderer {
 
       if (Math.abs(selectedGrid.topLeftPoint.x - oldSelectedGrid.topLeftPoint.x) > selectedGrid.sideLengthX ||
         Math.abs(selectedGrid.topLeftPoint.y - oldSelectedGrid.topLeftPoint.y) > selectedGrid.sideLengthY) {
-        interpolationX = 0
-        interpolationY = 0
+        offsetX = 0
+        offsetY = 0
       } else {
-        interpolationX = Math.floor((selectedGrid.topLeftPoint.x - oldSelectedGrid.topLeftPoint.x) * data.oneStepProgress / 100)
-        interpolationY = Math.floor((selectedGrid.topLeftPoint.y - oldSelectedGrid.topLeftPoint.y) * data.oneStepProgress / 100)
+        offsetX = Math.floor((selectedGrid.topLeftPoint.x - oldSelectedGrid.topLeftPoint.x) * data.oneStepProgress / 100)
+        offsetY = Math.floor((selectedGrid.topLeftPoint.y - oldSelectedGrid.topLeftPoint.y) * data.oneStepProgress / 100)
       }
 
       radius = Math.floor(selectedGrid.sideLengthX / 2)
-      currentX = oldSelectedGrid.topLeftPoint.x + radius + interpolationX
-      currentY = oldSelectedGrid.topLeftPoint.y + radius + interpolationY
+      currentX = oldSelectedGrid.topLeftPoint.x + radius + offsetX
+      currentY = oldSelectedGrid.topLeftPoint.y + radius + offsetY
 
       this.ctx.moveTo(currentX, currentY)
       this.ctx.arc(currentX, currentY, radius, 0, 2 * Math.PI)
@@ -133,7 +181,7 @@ export class Renderer {
         this.ctx.beginPath()
       }
     }
-    
+
     this.ctx.fillStyle = this.gameConfig.snakeBodyColor
     this.ctx.fill()
 
